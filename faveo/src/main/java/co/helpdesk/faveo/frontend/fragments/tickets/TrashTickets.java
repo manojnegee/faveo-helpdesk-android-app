@@ -93,25 +93,26 @@ public class TrashTickets extends Fragment {
             });
             tv = (TextView) rootView.findViewById(R.id.empty_view);
         }
-        ((MainActivity) getActivity()).setActionBarTitle("Trash");
+       // ((MainActivity) getActivity()).setActionBarTitle(getString(R.string.trash_tickets));
         return rootView;
     }
 
     public class FetchFirst extends AsyncTask<String, Void, String> {
         Context context;
 
-        public FetchFirst(Context context) {
+        FetchFirst(Context context) {
             this.context = context;
         }
 
         protected String doInBackground(String... urls) {
-            if (nextPageURL.equals("null")) {
-                return "all done";
-            }
+//            if (nextPageURL.equals("null")) {
+//                return "all done";
+//            }
             String result = new Helpdesk().getTrashTickets();
             if (result == null)
                 return null;
             String data;
+            ticketOverviewList.clear();
             try {
                 JSONObject jsonObject = new JSONObject(result);
                 try {
@@ -181,7 +182,7 @@ public class TrashTickets extends Fragment {
     public class FetchNextPage extends AsyncTask<String, Void, String> {
         Context context;
 
-        public FetchNextPage(Context context) {
+        FetchNextPage(Context context) {
             this.context = context;
         }
 
@@ -192,8 +193,8 @@ public class TrashTickets extends Fragment {
             String result = new Helpdesk().nextPageURL(nextPageURL);
             if (result == null)
                 return null;
-            DatabaseHandler databaseHandler = new DatabaseHandler(context);
-            databaseHandler.recreateTable();
+           // DatabaseHandler databaseHandler = new DatabaseHandler(context);
+           // databaseHandler.recreateTable();
             try {
                 JSONObject jsonObject = new JSONObject(result);
                 nextPageURL = jsonObject.getString("next_page_url");
@@ -203,13 +204,13 @@ public class TrashTickets extends Fragment {
                     TicketOverview ticketOverview = Helper.parseTicketOverview(jsonArray, i);
                     if (ticketOverview != null) {
                         ticketOverviewList.add(ticketOverview);
-                        databaseHandler.addTicketOverview(ticketOverview);
+                       // databaseHandler.addTicketOverview(ticketOverview);
                     }
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            databaseHandler.close();
+           // databaseHandler.close();
             return "success";
         }
 
@@ -246,6 +247,7 @@ public class TrashTickets extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+        nextPageURL="";
     }
 
     public interface OnFragmentInteractionListener {

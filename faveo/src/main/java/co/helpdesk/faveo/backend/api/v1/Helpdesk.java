@@ -3,11 +3,11 @@ package co.helpdesk.faveo.backend.api.v1;
 
 import android.util.Log;
 
-import co.helpdesk.faveo.Constants;
-import co.helpdesk.faveo.Preference;
-
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import co.helpdesk.faveo.Constants;
+import co.helpdesk.faveo.Preference;
 
 /**
  * Created by Sumit
@@ -25,11 +25,12 @@ public class Helpdesk {
     }
 
     public String getBaseURL(String companyURL) {
+        Log.d("verifyURLAPI", companyURL + "api/v1/helpdesk/url?url=" + companyURL.substring(0, companyURL.length() - 1) + "&api_key=" + apiKey);
         return new HTTPConnection().HTTPResponseGet(companyURL + "api/v1/helpdesk/url?url=" + companyURL.substring(0, companyURL.length() - 1) + "&api_key=" + apiKey);
     }
 
     public String postCreateTicket(int userID, String subject, String body, int helpTopic,
-                                   int sla, int priority, int dept) {
+                                   int sla, int priority, int dept, String fname, String lname, String phone, String email, String code) {
         Log.d("postCreateTicketAPI", Constants.URL + "helpdesk/create?" +
                 "api_key=" + apiKey +
                 "&ip=" + IP +
@@ -40,7 +41,13 @@ public class Helpdesk {
                 "&sla=" + sla +
                 "&priority=" + priority +
                 "&dept=" + dept +
+                "&first_name=" + fname +
+                "&last_name=" + lname +
+                "&phone=" + phone +
+                "&code=" + code +
+                "&email=" + email +
                 "&token=" + token);
+
         String result = new HTTPConnection().HTTPResponsePost(Constants.URL + "helpdesk/create?" +
                 "api_key=" + apiKey +
                 "&ip=" + IP +
@@ -51,7 +58,13 @@ public class Helpdesk {
                 "&sla=" + sla +
                 "&priority=" + priority +
                 "&dept=" + dept +
+                "&first_name=" + fname +
+                "&last_name=" + lname +
+                "&phone=" + phone +
+                "&code=" + code +
+                "&email=" + email +
                 "&token=" + token, null);
+
         if (result != null && result.equals("tokenRefreshed"))
             return new HTTPConnection().HTTPResponsePost(Constants.URL + "helpdesk/create?" +
                     "api_key=" + apiKey +
@@ -63,6 +76,11 @@ public class Helpdesk {
                     "&sla=" + sla +
                     "&priority=" + priority +
                     "&dept=" + dept +
+                    "&first_name=" + fname +
+                    "&last_name=" + lname +
+                    "&phone=" + phone +
+                    "&code=" + code +
+                    "&email=" + email +
                     "&token=" + token, null);
         return result;
     }
@@ -102,12 +120,13 @@ public class Helpdesk {
                 "&cc=" + cc +
                 "&reply_content=" + replyContent);
         String result = new HTTPConnection().HTTPResponsePost(Constants.URL + "helpdesk/reply?" +
-                "api_key=" + apiKey +
-                "&ip=" + IP +
-                "&token=" + token +
-                "&ticket_ID=" + ticketID +
-                "&cc=" + cc +
-                "&reply_content=" + replyContent, null);
+                        "api_key=" + apiKey +
+                        "&ip=" + IP +
+                        "&token=" + token +
+                        "&ticket_ID=" + ticketID +
+                        "&cc=" + cc +
+                        "&reply_content=" + replyContent,
+                null);
         if (result != null && result.equals("tokenRefreshed"))
             return new HTTPConnection().HTTPResponsePost(Constants.URL + "helpdesk/reply?" +
                     "api_key=" + apiKey +
@@ -342,6 +361,15 @@ public class Helpdesk {
         String result = new HTTPConnection().HTTPResponseGet(URL + "&api_key=" + apiKey + "&token=" + token);
         if (result != null && result.equals("tokenRefreshed"))
             return new HTTPConnection().HTTPResponseGet(URL + "&api_key=" + apiKey + "&token=" + token);
+        return result;
+    }
+
+    public String nextPageURL(String URL, String userID) {
+
+        Log.d("nextPageURLAPI", URL + "&api_key=" + apiKey + "&token=" + token + "&user_id=" + userID);
+        String result = new HTTPConnection().HTTPResponseGet(URL + "&api_key=" + apiKey + "&token=" + token + "&user_id=" + userID);
+        if (result != null && result.equals("tokenRefreshed"))
+            return new HTTPConnection().HTTPResponseGet(URL + "&api_key=" + apiKey + "&token=" + token + "&user_id=" + userID);
         return result;
     }
 

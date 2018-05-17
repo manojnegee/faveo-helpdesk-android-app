@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -79,7 +80,7 @@ public class Conversation extends Fragment {
             swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 @Override
                 public void onRefresh() {
-                    if (ticketThreadList.size()!= 0) {
+                    if (ticketThreadList.size() != 0) {
                         ticketThreadList.clear();
                         ticketThreadAdapter.notifyDataSetChanged();
                         new FetchTicketThreads(getActivity()).execute();
@@ -94,46 +95,12 @@ public class Conversation extends Fragment {
     public class FetchTicketThreads extends AsyncTask<String, Void, String> {
         Context context;
 
-        public FetchTicketThreads(Context context) {
+        FetchTicketThreads(Context context) {
             this.context = context;
         }
 
         protected String doInBackground(String... urls) {
-            String result = new Helpdesk().getTicketThread(TicketDetailActivity.ticketID);
-            if (result == null)
-                return null;
-            try {
-                JSONArray jsonArray = new JSONArray(result);
-                for(int i = 0; i < jsonArray.length(); i++) {
-                    TicketThread ticketThread = null;
-                    try {
-                        String clientPicture = null;
-                        try {
-                            clientPicture = jsonArray.getJSONObject(i).getString("profile_pic");
-                        } catch (Exception e) {
-
-                        }
-/*                        String clientName = jsonArray.getJSONObject(i).getString("poster");
-                        if (clientName.equals("null") || clientName.equals(""))
-                            clientName = "NOTE";*/
-                        String clientName = jsonArray.getJSONObject(i).getString("first_name");
-                        if (clientName.equals("null") || clientName.equals(""))
-                            clientName = jsonArray.getJSONObject(i).getString("user_name");
-                        String messageTime = jsonArray.getJSONObject(i).getString("created_at");
-                        String messageTitle = jsonArray.getJSONObject(i).getString("title");
-                        String message = jsonArray.getJSONObject(i).getString("body");
-                        String isReply = jsonArray.getJSONObject(i).getString("is_internal").equals("0") ? "false" : "true";
-                        ticketThread = new TicketThread(clientPicture, clientName, messageTime, messageTitle, message, isReply);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    if(ticketThread != null)
-                        ticketThreadList.add(ticketThread);
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            return "success";
+            return new Helpdesk().getTicketThread(TicketDetailActivity.ticketID);
         }
 
         protected void onPostExecute(String result) {
@@ -145,6 +112,39 @@ public class Conversation extends Fragment {
                 Toast.makeText(getActivity(), "Something went wrong", Toast.LENGTH_LONG).show();
                 return;
             }
+            try {
+                JSONArray jsonArray = new JSONArray(result);
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    TicketThread ticketThread = null;
+                    try {
+                        String clientPicture = null;
+                        try {
+                            clientPicture = jsonArray.getJSONObject(i).getString("profile_pic");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+/*                        String clientName = jsonArray.getJSONObject(i).getString("poster");
+                        if (clientName.equals("null") || clientName.equals(""))
+                            clientName = "NOTE";*/
+                        String clientName = jsonArray.getJSONObject(i).getString("first_name") + " " + jsonArray.getJSONObject(i).getString("last_name");
+                        if (clientName.equals("null") || clientName.equals(""))
+                            clientName = jsonArray.getJSONObject(i).getString("user_name");
+                        String messageTime = jsonArray.getJSONObject(i).getString("created_at");
+                        String messageTitle = jsonArray.getJSONObject(i).getString("title");
+                        String message = jsonArray.getJSONObject(i).getString("body");
+                        Log.d("body:", message);
+                        String isReply = jsonArray.getJSONObject(i).getString("is_internal").equals("0") ? "false" : "true";
+                        ticketThread = new TicketThread(clientPicture, clientName, messageTime, messageTitle, message, isReply);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    if (ticketThread != null)
+                        ticketThreadList.add(ticketThread);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
             recyclerView = (RecyclerView) rootView.findViewById(R.id.cardList);
             recyclerView.setHasFixedSize(false);
             final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
@@ -155,7 +155,6 @@ public class Conversation extends Fragment {
             recyclerView.setAdapter(ticketThreadAdapter);
         }
     }
-
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);

@@ -1,8 +1,5 @@
 package co.helpdesk.faveo;
 
-import co.helpdesk.faveo.model.ClientOverview;
-import co.helpdesk.faveo.model.TicketOverview;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -10,6 +7,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+
+import co.helpdesk.faveo.model.ClientOverview;
+import co.helpdesk.faveo.model.TicketOverview;
 
 /**
  * Created by sumit on 1/26/2016.
@@ -36,7 +36,7 @@ public class Helper {
             String updatedAt = jsonArray.getJSONObject(i).getString("updated_at");
 
             return new TicketOverview(Integer.parseInt(ID), profilePic,
-                    ticketNumber, username, title, updatedAt, i + "");
+                    ticketNumber, firstName + " " + lastName, title, updatedAt, i + "");
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -56,7 +56,7 @@ public class Helper {
             String clientActive = jsonArray.getJSONObject(i).getString("active");
 
             return new ClientOverview(Integer.parseInt(clientID), clientPicture,
-                    userName, clientEmail, clientPhone, clientCompany, clientActive);
+                    firstName + " " + lastName, clientEmail, clientPhone, clientCompany, clientActive);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -84,19 +84,48 @@ public class Helper {
         return null;
     }
 
+    public static Long relativeTime(String dateToParse) {
+
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        Date d = null;
+        try {
+            d = sdf.parse(dateToParse);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        SimpleDateFormat output = new SimpleDateFormat("d MMM yyyy  HH:mm");
+        output.setTimeZone(TimeZone.getDefault());
+
+        String formattedTime = output.format(d);
+        Date gg = null;
+        try {
+            gg = output.parse(formattedTime);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        // SimpleDateFormat day = new SimpleDateFormat("dd");
+//            String formattedDay = day.format(d) + Helper.getDayOfMonthSuffix(Integer.parseInt(day.format(d)));
+//            formattedTime = formattedTime.replaceFirst(formattedTime.substring(0, formattedTime.indexOf(" ")), formattedDay);
+//            sdf.parse(dateToParse);
+        return gg != null ? gg.getTime() : 0;
+    }
+
     public static String parseDate(String dateToParse) {
         try {
 
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-            Date d = sdf.parse(dateToParse);
+            Date dAte = sdf.parse(dateToParse);
 
             SimpleDateFormat output = new SimpleDateFormat("d MMM yyyy  HH:mm");
             output.setTimeZone(TimeZone.getDefault());
 
-            String formattedTime = output.format(d);
+            String formattedTime = output.format(dAte);
             SimpleDateFormat day = new SimpleDateFormat("dd");
-            String formattedDay = day.format(d) + Helper.getDayOfMonthSuffix(Integer.parseInt(day.format(d)));
+            String formattedDay = day.format(dAte) + Helper.getDayOfMonthSuffix(Integer.parseInt(day.format(dAte)));
             formattedTime = formattedTime.replaceFirst(formattedTime.substring(0, formattedTime.indexOf(" ")), formattedDay);
             sdf.parse(dateToParse);
             return formattedTime;

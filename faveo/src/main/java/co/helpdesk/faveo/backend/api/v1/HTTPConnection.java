@@ -1,8 +1,7 @@
 package co.helpdesk.faveo.backend.api.v1;
 
 import android.util.Log;
-
-import co.helpdesk.faveo.Preference;
+import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,8 +14,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.net.CookieHandler;
+import java.net.CookieManager;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
+import co.helpdesk.faveo.FaveoApplication;
+import co.helpdesk.faveo.Preference;
 
 /**
  * Created by Sumit
@@ -27,7 +31,13 @@ public class HTTPConnection {
     private InputStream is = null;
     private URL url;
 
-    public String HTTPResponsePost(String stringURL, String parameters) {
+    HTTPConnection() {
+
+        CookieManager cookieManager = new CookieManager();
+        CookieHandler.setDefault(cookieManager);
+    }
+
+    String HTTPResponsePost(String stringURL, String parameters) {
         try {
             url = new URL(stringURL);
             final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -150,7 +160,7 @@ public class HTTPConnection {
         return sb.toString();
     }
 
-    public String HTTPResponseGet(String stringURL) {
+    String HTTPResponseGet(String stringURL) {
         try {
             url = new URL(stringURL);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -161,7 +171,7 @@ public class HTTPConnection {
             connection.setDoInput(true);
             is = connection.getInputStream();
             connection.getResponseCode();
-            Log.e("Response Codee", connection.getResponseCode() + "");
+            Log.e("Response Code GET()", connection.getResponseCode() + "");
         } catch (IOException e) {
 
             if (e.getMessage().contains("No authentication challenges found")) {
@@ -171,6 +181,8 @@ public class HTTPConnection {
                 new Helpdesk();
                 new Authenticate();
                 return "tokenRefreshed";
+            } else if (e.getMessage().contains("404 Not Found error")) {
+                Toast.makeText(FaveoApplication.getInstance(), "Oops! File not found", Toast.LENGTH_LONG).show();
             }
 
             Log.e("error in faveo", e.getMessage());

@@ -26,8 +26,6 @@ import java.util.List;
 import co.helpdesk.faveo.Helper;
 import co.helpdesk.faveo.R;
 import co.helpdesk.faveo.backend.api.v1.Helpdesk;
-import co.helpdesk.faveo.backend.database.DatabaseHandler;
-import co.helpdesk.faveo.frontend.activities.MainActivity;
 import co.helpdesk.faveo.frontend.adapters.TicketOverviewAdapter;
 import co.helpdesk.faveo.model.TicketOverview;
 
@@ -36,7 +34,7 @@ public class ClosedTickets extends Fragment {
     private static final String ARG_PARAM2 = "param2";
     TextView tv;
     RecyclerView recyclerView;
-    int currentPage = 1;
+    //int currentPage = 1;
     static String nextPageURL = "";
     View rootView;
     ProgressDialog progressDialog;
@@ -48,8 +46,8 @@ public class ClosedTickets extends Fragment {
     private boolean loading = true;
     int pastVisibleItems, visibleItemCount, totalItemCount;
 
-    private String mParam1;
-    private String mParam2;
+   // private String mParam1;
+   // private String mParam2;
 
     private OnFragmentInteractionListener mListener;
 
@@ -65,14 +63,14 @@ public class ClosedTickets extends Fragment {
     public ClosedTickets() {
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
+//    @Override
+//    public void onCreate(Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//        if (getArguments() != null) {
+//            mParam1 = getArguments().getString(ARG_PARAM1);
+//            mParam2 = getArguments().getString(ARG_PARAM2);
+//        }
+//    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -93,25 +91,26 @@ public class ClosedTickets extends Fragment {
             });
             tv = (TextView) rootView.findViewById(R.id.empty_view);
         }
-        ((MainActivity) getActivity()).setActionBarTitle("Closed tickets");
+        //  ((MainActivity) getActivity()).setActionBarTitle(getString(R.string.closed_tickets));
         return rootView;
     }
 
     public class FetchFirst extends AsyncTask<String, Void, String> {
         Context context;
 
-        public FetchFirst(Context context) {
+        FetchFirst(Context context) {
             this.context = context;
         }
 
         protected String doInBackground(String... urls) {
-            if (nextPageURL.equals("null")) {
-                return "all done";
-            }
+//            if (nextPageURL.equals("null")) {
+//                return "all done";
+//            }
             String result = new Helpdesk().getClosedTicket();
             if (result == null)
                 return null;
             String data;
+            ticketOverviewList.clear();
             try {
                 JSONObject jsonObject = new JSONObject(result);
                 try {
@@ -179,7 +178,7 @@ public class ClosedTickets extends Fragment {
     public class FetchNextPage extends AsyncTask<String, Void, String> {
         Context context;
 
-        public FetchNextPage(Context context) {
+        FetchNextPage(Context context) {
             this.context = context;
         }
 
@@ -190,8 +189,8 @@ public class ClosedTickets extends Fragment {
             String result = new Helpdesk().nextPageURL(nextPageURL);
             if (result == null)
                 return null;
-            DatabaseHandler databaseHandler = new DatabaseHandler(context);
-            databaseHandler.recreateTable();
+            //DatabaseHandler databaseHandler = new DatabaseHandler(context);
+            // databaseHandler.recreateTable();
             try {
                 JSONObject jsonObject = new JSONObject(result);
                 nextPageURL = jsonObject.getString("next_page_url");
@@ -201,13 +200,13 @@ public class ClosedTickets extends Fragment {
                     TicketOverview ticketOverview = Helper.parseTicketOverview(jsonArray, i);
                     if (ticketOverview != null) {
                         ticketOverviewList.add(ticketOverview);
-                        databaseHandler.addTicketOverview(ticketOverview);
+                        // databaseHandler.addTicketOverview(ticketOverview);
                     }
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            databaseHandler.close();
+            //databaseHandler.close();
             return "success";
         }
 
@@ -244,6 +243,7 @@ public class ClosedTickets extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+        nextPageURL = "";
     }
 
     public interface OnFragmentInteractionListener {
